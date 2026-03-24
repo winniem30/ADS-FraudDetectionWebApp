@@ -1,105 +1,128 @@
-🚨 Ad Fraud Detection System
-🏆 Finalist – Cyber Hackathon 2025, Patna, Bihar
-📌 Abstract
+ADS(Accurate Detection Services) Fraud Detection System
+Cyber Hackathon 2025 Finalist · Patna, Bihar
+Overview
 
-The Ad Fraud Detection System is a machine learning-driven cybersecurity solution designed to identify and mitigate fraudulent activities in digital advertising ecosystems.
+The ADS Fraud Detection System is a machine learning-based cybersecurity solution developed to detect fraudulent activities in digital advertising datasets.
 
-Developed as part of the Cyber Hackathon 2025 (Patna, Bihar), the project was recognized as a Finalist for its robust and scalable approach to fraud detection using structured data analytics and supervised learning models.
+This project was built and presented at the Cyber Hackathon 2025 (Patna, Bihar), where it was selected as a Finalist for its practical implementation and real-world relevance.
 
-The system enables users to upload advertising datasets in CSV format, processes the data through trained models, and generates actionable insights by classifying interactions as fraudulent or legitimate. Additionally, it is designed to support advanced visualization through Tableau-based spider maps for network-level fraud analysis.
+The system enables users to upload structured datasets and performs fraud detection using supervised learning models, producing interpretable and actionable outputs.
 
-🎯 Problem Definition
+Problem Context
 
-Digital advertising platforms are increasingly vulnerable to sophisticated fraud mechanisms such as:
+Digital advertising ecosystems are increasingly affected by:
 
-Click fraud and bot-driven traffic
+Invalid click generation (bot traffic)
 Impression manipulation
-Traffic spoofing and automated interactions
+Automated interaction patterns
+Traffic spoofing
 
-These activities result in significant financial losses, skewed analytics, and reduced platform trustworthiness. Detecting such anomalies in large-scale datasets remains a critical challenge.
+These issues lead to financial loss, unreliable analytics, and reduced trust in ad platforms.
 
-💡 Proposed Solution
+Solution Approach
 
-This project presents a data-driven fraud detection framework that integrates:
+The system follows a structured pipeline:
 
-Supervised machine learning models for classification
-Structured preprocessing and feature engineering
-Analytical outputs with visualization support
+CSV Upload → Preprocessing → Feature Engineering → Model Inference → Output → Visualization
 
-The system is designed to be modular, scalable, and adaptable to real-world advertising data pipelines.
+It combines data preprocessing, feature engineering, and machine learning classification to identify fraudulent behavior patterns efficiently.
 
-🧠 Methodology
-1. Data Ingestion
-Input: CSV datasets containing ad interaction logs
-Attributes include IP address, timestamp, device information, and user behavior metrics
-2. Data Preprocessing
-Handling missing and inconsistent values
-Encoding categorical features
-Feature scaling and normalization
-3. Feature Engineering
-
-Key derived features include:
-
+Core Components
+Data Ingestion
+Accepts CSV files containing ad interaction logs
+Supports attributes such as IP address, timestamp, device, and session data
+Data Processing
+Missing value handling
+Encoding of categorical variables
+Feature scaling
+Feature Engineering
 Click frequency per IP
-Time interval between consecutive clicks
-Session-based activity patterns
-Behavioral consistency metrics
-🤖 Machine Learning Models
-🔹 Random Forest Classifier
-Primary model for fraud detection
-Captures complex, non-linear relationships
-Provides high accuracy and robustness against noise
-🔹 Logistic Regression
-Secondary model for binary classification
-Generates probability-based outputs
-Used for validation and comparative analysis
-⚙️ System Architecture
-
-Pipeline Overview:
-
-CSV Upload → Data Preprocessing → Feature Engineering →
-Model Inference (RF + LR) → Fraud Classification → Visualization
-
-📊 Output
+Time gap between clicks
+Session-level activity metrics
+Machine Learning Models
+Model	Purpose	Strength
+Random Forest	Primary classification model	Handles complex patterns, high accuracy
+Logistic Regression	Secondary validation model	Interpretable, probability-based output
+Output
 
 The system generates:
 
-Binary classification (Fraud / Legitimate)
-Probability scores for each instance
-Flagged suspicious records for further analysis
-🕸️ Visualization (Planned Enhancement)
+Fraud / Legitimate classification
+Probability scores
+Flagged suspicious records
 
-To enhance interpretability and investigation capabilities, the system is designed to integrate with Tableau for advanced visualization:
+These outputs can be used for further investigation or integration into monitoring systems.
 
-Spider (network) maps to represent relationships between entities
-Identification of clustered fraudulent activities
-Detection of coordinated attack patterns
-⚙️ Key Features
-📂 CSV-based data ingestion
-🤖 Dual-model fraud detection (Random Forest + Logistic Regression)
-📊 Analytical output generation
-🔍 Scalable and modular design
-🕸️ Visualization-ready architecture
-🛠️ Technology Stack
+Visualization Layer
 
-Frontend:
+The system is designed to support advanced visualization:
 
-HTML, CSS, JavaScript
+Statistical plots using Python libraries
+Planned integration with Tableau for:
+Network-based spider maps
+Fraud cluster identification
+Pattern tracking across entities
+Key Features
+Structured CSV-based workflow
+Dual-model fraud detection (Random Forest + Logistic Regression)
+Clean and interpretable outputs
+Modular and scalable design
+Visualization-ready pipeline
+Technology Stack
 
-Backend:
+Backend
 
 Python (Flask)
 
-Machine Learning:
+Machine Learning
 
 Scikit-learn
 Pandas, NumPy
 
-Visualization:
+Frontend
+
+HTML, CSS, JavaScript
+
+Visualization
 
 Matplotlib, Seaborn
-Tableau (planned integration)
+Tableau (integration-ready)
 
-Database:
+Database
 
 SQLite / MySQL
+Project Structure
+ad-fraud-detection/
+│── app.py
+│── models/
+│── static/
+│── templates/
+│── dataset/
+│── requirements.txt
+Setup and Execution
+git clone https://github.com/your-username/ad-fraud-detection.git
+cd ad-fraud-detection
+pip install -r requirements.txt
+python app.py
+
+Access the application at:
+
+http://127.0.0.1:5000/
+Achievements
+Finalist – Cyber Hackathon 2025, Patna
+Recognized for applied cybersecurity innovation
+Demonstrates real-world applicability in AdTech systems
+Future Enhancements
+Real-time data streaming integration
+Advanced models (XGBoost, Deep Learning)
+Automated fraud prevention mechanisms
+Full Tableau dashboard integration
+API-based deployment for external systems
+Team
+
+Tejaswini M – Team Lead
+[Add Team Members]
+
+Closing Note
+
+This project reflects the application of machine learning in solving a critical cybersecurity challenge. It establishes a foundation for building fraud-resilient, data-driven advertising systems with scalable architecture and extensible analytics capabilities.

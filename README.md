@@ -87,5 +87,5 @@ money_laundering_app/
 ---
 
 ## Team
-Tejaswini Medandrao — Team Lead  
+Tejaswini Medandrao — Tech Lead  
 Stanley College of Engineering and Technology | Class of 2027

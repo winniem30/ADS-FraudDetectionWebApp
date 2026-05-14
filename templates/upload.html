@@ -7,25 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a1628;
-    --accent: #00d4ff;
-    --danger: #ff4757;
-    --safe: #2ed573;
-    --text: #e2e8f0;
-    --muted: #64748b;
+    --accent: #00d4ff; --danger: #ff4757; --safe: #2ed573;
+    --warn: #ffa502; --text: #e2e8f0; --muted: #64748b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: linear-gradient(135deg, #0a1628 0%, #0d2137 40%, #0a1f2e 100%);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
+    color: var(--text); font-family: 'DM Sans', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; overflow: hidden; position: relative;
   }
   .spider-bg {
     position: fixed; inset: 0; width: 100%; height: 100%;
@@ -51,18 +41,18 @@
   h1 {
     font-family: 'Space Mono', monospace;
     font-size: clamp(1.6rem, 4vw, 2.8rem); font-weight: 700;
-    text-align: center; line-height: 1.2; margin-bottom: 0.5rem;
+    text-align: center; margin-bottom: 0.5rem;
     color: var(--accent); text-shadow: 0 0 30px rgba(0,212,255,0.4);
   }
   .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2.5rem; text-align: center; }
   .card {
-    background: rgba(10,14,26,0.85); border: 1px solid rgba(0,212,255,0.2);
+    background: rgba(10,14,26,0.88); border: 1px solid rgba(0,212,255,0.2);
     border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 420px;
     box-shadow: 0 0 60px rgba(0,212,255,0.08), 0 25px 50px rgba(0,0,0,0.6);
     backdrop-filter: blur(12px);
   }
   .card-title {
-    font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700;
+    font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 700;
     text-align: center; margin-bottom: 1.75rem;
     display: flex; align-items: center; justify-content: center; gap: 0.6rem;
   }
@@ -73,12 +63,12 @@
   }
   .file-label:hover { border-color: var(--accent); }
   .file-label .choose {
-    padding: 0.7rem 1rem; background: rgba(255,255,255,0.08);
+    padding: 0.75rem 1rem; background: rgba(255,255,255,0.08);
     color: var(--text); font-size: 0.85rem; white-space: nowrap;
     border-right: 1px solid rgba(255,255,255,0.1);
   }
-  .file-label .file-name {
-    padding: 0.7rem 1rem; font-size: 0.82rem; color: var(--muted);
+  .file-label .fname {
+    padding: 0.75rem 1rem; font-size: 0.82rem; color: var(--muted);
     flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   input[type=file] { display: none; }
@@ -88,11 +78,10 @@
     font-size: 0.82rem; margin-bottom: 1rem;
   }
   .btn-analyze {
-    width: 100%; padding: 0.85rem;
-    background: var(--accent); color: #000; border: none; border-radius: 8px;
-    font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: 700;
-    cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s;
-    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+    width: 100%; padding: 0.85rem; background: var(--accent); color: #000;
+    border: none; border-radius: 8px; font-family: 'Space Mono', monospace;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer; letter-spacing: 0.05em;
+    transition: all 0.2s; box-shadow: 0 0 20px rgba(0,212,255,0.3);
   }
   .btn-analyze:hover { background: #22e0ff; box-shadow: 0 0 30px rgba(0,212,255,0.5); transform: translateY(-1px); }
   .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -101,12 +90,13 @@
   .progress-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--accent); animation: prog 2s ease-in-out infinite; border-radius: 3px; }
   @keyframes prog { 0%{width:0%} 70%{width:85%} 100%{width:100%} }
-  .progress p { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; text-align: center; font-family: 'Space Mono', monospace; }
-  .pills { display: flex; gap: 0.6rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center; }
-  .pill { padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.68rem; font-family: 'Space Mono', monospace; border: 1px solid; }
-  .pill-blue { border-color: rgba(0,212,255,0.3); color: var(--accent); background: rgba(0,212,255,0.07); }
-  .pill-red { border-color: rgba(255,71,87,0.3); color: var(--danger); background: rgba(255,71,87,0.07); }
-  .pill-green { border-color: rgba(46,213,115,0.3); color: var(--safe); background: rgba(46,213,115,0.07); }
+  .progress p { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; text-align: center; font-family: 'Space Mono', monospace; }
+  .pills { display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center; }
+  .pill { padding: 0.28rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-family: 'Space Mono', monospace; border: 1px solid; }
+  .p-blue { border-color: rgba(0,212,255,0.3); color: var(--accent); background: rgba(0,212,255,0.07); }
+  .p-red  { border-color: rgba(255,71,87,0.3); color: var(--danger); background: rgba(255,71,87,0.07); }
+  .p-grn  { border-color: rgba(46,213,115,0.3); color: var(--safe); background: rgba(46,213,115,0.07); }
+  .p-ylw  { border-color: rgba(255,165,2,0.3); color: var(--warn); background: rgba(255,165,2,0.07); }
 </style>
 </head>
 <body>
@@ -133,44 +123,44 @@
 <div class="content">
   <div class="logo-badge">▶ ADS · Accurate Detection Services</div>
   <h1>Upload Transactions</h1>
-  <p class="subtitle">AI-Powered Money Laundering Detection System</p>
+  <p class="subtitle">AI-Powered Money Laundering Detection · 5 ML Models</p>
   <div class="card">
-    <div class="card-title"><span>📤</span> Upload Transactions (CSV)</div>
+    <div class="card-title">📤 Upload Transactions (CSV)</div>
     {% if error %}<div class="error">⚠ {{ error }}</div>{% endif %}
     <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
       <label class="file-label" for="fileInput">
         <span class="choose">Choose file</span>
-        <span class="file-name" id="fileNameDisplay">No file chosen</span>
+        <span class="fname" id="fname">No file chosen</span>
       </label>
       <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" required>
       <div class="progress" id="progress">
         <div class="progress-bar"><div class="progress-fill"></div></div>
-        <p>Analysing · Running 5 ML models...</p>
+        <p>Running 5 ML models · Building SpyderMap · Scoring risks...</p>
       </div>
       <button type="submit" class="btn-analyze" id="submitBtn">Analyze Transactions</button>
     </form>
-    <p class="hint">Supports CSV, XLSX · Max 50MB</p>
+    <p class="hint">Supports CSV · XLSX · Max 50MB</p>
   </div>
   <div class="pills">
-    <span class="pill pill-blue">Random Forest</span>
-    <span class="pill pill-blue">XGBoost</span>
-    <span class="pill pill-red">Isolation Forest</span>
-    <span class="pill pill-green">One-Class SVM</span>
-    <span class="pill pill-blue">Logistic Regression</span>
+    <span class="pill p-blue">Random Forest</span>
+    <span class="pill p-ylw">XGBoost</span>
+    <span class="pill p-red">Isolation Forest</span>
+    <span class="pill p-grn">One-Class SVM</span>
+    <span class="pill p-blue">Logistic Regression</span>
   </div>
 </div>
 <script>
-  const input = document.getElementById('fileInput');
-  const display = document.getElementById('fileNameDisplay');
-  const form = document.getElementById('uploadForm');
-  const progress = document.getElementById('progress');
+  const inp = document.getElementById('fileInput');
+  const fn  = document.getElementById('fname');
+  const frm = document.getElementById('uploadForm');
+  const prg = document.getElementById('progress');
   const btn = document.getElementById('submitBtn');
-  input.addEventListener('change', () => {
-    display.textContent = input.files[0] ? input.files[0].name : 'No file chosen';
-    display.style.color = input.files[0] ? '#00d4ff' : '';
+  inp.addEventListener('change', () => {
+    fn.textContent = inp.files[0] ? inp.files[0].name : 'No file chosen';
+    fn.style.color = inp.files[0] ? '#00d4ff' : '';
   });
-  form.addEventListener('submit', () => {
-    progress.style.display = 'block';
+  frm.addEventListener('submit', () => {
+    prg.style.display = 'block';
     btn.disabled = true; btn.textContent = 'Analysing...';
   });
 </script>

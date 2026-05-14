@@ -1,6 +1,6 @@
-body {
-    background-color: #f8f9fa;
-}
-.table-danger {
-    background-color: #f8d7da;
-}
+body{font-family:Inter,Arial,sans-serif;background:#0b1220;color:#e5e7eb;margin:0}.main{max-width:1200px;margin:20px auto;padding:12px}
+.stats,.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.card{background:#111827;border:1px solid #243244;border-radius:10px;padding:12px}
+.card.high b{color:#ef4444}.card.med b{color:#f59e0b}.card.low b{color:#22c55e}.card.flag b{color:#e879f9}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid #243244;padding:8px;text-align:left;vertical-align:top}
+tr.high{background:#3a1117}tr.medium{background:#32240d}
+a{color:#93c5fd}

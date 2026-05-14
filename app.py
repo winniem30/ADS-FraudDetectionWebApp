@@ -82,13 +82,13 @@ def _synthetic_labels(df):
 
 
 def train_all_models():
-    from sklearn.ensemble import RandomForestClassifier, IsolationForest
+    from sklearn.ensemble import RandomForestClassifier
     from sklearn.linear_model import LogisticRegression
     from sklearn.svm import OneClassSVM
     from sklearn.model_selection import train_test_split
     from sklearn.preprocessing import StandardScaler
 
-    log.info("Training all 5 AML models on synthetic data...")
+    log.info("Training core AML models on synthetic data...")
 
     # Generate rich synthetic dataset
     np.random.seed(42)
@@ -151,20 +151,14 @@ def train_all_models():
     except ImportError:
         log.warning("XGBoost not installed — skipping xgb_model")
 
-    # 4. Isolation Forest  (unsupervised anomaly detection)
-    iso = IsolationForest(n_estimators=200, contamination=0.1, random_state=42, n_jobs=-1)
-    iso.fit(X_tr)
-    _save('iso_model', iso)
-    log.info("Isolation Forest trained")
-
-    # 5. One-Class SVM  (trained on normal transactions only)
+    # 4. One-Class SVM  (trained on normal transactions only)
     X_normal_sc = X_tr_sc[y_tr == 0]
     ocsvm = OneClassSVM(kernel='rbf', nu=0.1, gamma='scale')
     ocsvm.fit(X_normal_sc)
     _save('svm_model', (ocsvm, sc))   # store scaler alongside
     log.info("One-Class SVM trained")
 
-    log.info("All 5 models saved ✓")
+    log.info("Core AML models saved ✓")
 
 
 def _save(name, obj):
@@ -181,7 +175,7 @@ def _load(name):
 
 
 # Auto-train on first startup if models are missing
-_required = ['rf_model', 'lr_model', 'iso_model', 'svm_model']
+_required = ['rf_model', 'lr_model', 'svm_model']
 if not all(os.path.exists(os.path.join(MODELS_DIR, f'{m}.pkl')) for m in _required):
     train_all_models()
 
@@ -206,29 +200,6 @@ def _rule_score(row):
     return s
 
 
-def _safe_iso_predict(iso, X, chunk_size=20000):
-    """Predict anomalies with bounded memory usage."""
-    if iso is None:
-        return np.zeros(len(X), dtype=int)
-
-    n = len(X)
-    out = np.zeros(n, dtype=int)
-    # Force single-threaded execution to avoid OOM in constrained workers.
-    try:
-        iso.set_params(n_jobs=1)
-    except Exception:
-        pass
-
-    for start in range(0, n, chunk_size):
-        end = min(start + chunk_size, n)
-        try:
-            out[start:end] = (iso.predict(X.iloc[start:end]) == -1).astype(int)
-        except Exception:
-            log.exception('IsolationForest prediction failed on chunk %s:%s', start, end)
-            break
-    return out
-
-
 def analyze_df(raw_df):
     df = _engineer(raw_df)
     X  = df[FEATURE_COLS].fillna(0).astype(np.float32)
@@ -237,7 +208,6 @@ def analyze_df(raw_df):
     rf          = _load('rf_model')
     lr_bundle   = _load('lr_model')   # (lr, scaler) or just lr
     xgb         = _load('xgb_model')
-    iso         = _load('iso_model')
     svm_bundle  = _load('svm_model')  # (ocsvm, scaler)
 
     # Unpack bundles
@@ -251,13 +221,12 @@ def analyze_df(raw_df):
     rf_proba  = rf.predict_proba(X)[:, 1]       if rf    else np.zeros(n)
     lr_proba  = lr.predict_proba(X_sc)[:, 1]    if lr    else np.zeros(n)
     xgb_proba = xgb.predict_proba(X)[:, 1]      if xgb   else np.zeros(n)
-    iso_pred  = _safe_iso_predict(iso, X)
     svm_pred  = (ocsvm.predict(sv_sc.transform(X) if sv_sc else X) == -1).astype(int) \
                     if ocsvm else np.zeros(n)
 
     # Ensemble: average of available probability models + anomaly detectors
     prob_stack = [p for p in [rf_proba, lr_proba, xgb_proba] if p.any()]
-    anom_stack = [p for p in [iso_pred, svm_pred] if p.any()]
+    anom_stack = [p for p in [svm_pred] if p.any()]
     ensemble_prob = np.mean(prob_stack, axis=0) if prob_stack else np.zeros(n)
     ensemble_anom = np.mean(anom_stack, axis=0) if anom_stack else np.zeros(n)
 
@@ -284,7 +253,6 @@ def analyze_df(raw_df):
         'rf_score':         (rf_proba * 100).round(1),
         'lr_score':         (lr_proba * 100).round(1),
         'xgb_score':        (xgb_proba * 100).round(1),
-        'iso_flag':         iso_pred,
         'svm_flag':         svm_pred,
         'risk_score':       risk_scores,
     })

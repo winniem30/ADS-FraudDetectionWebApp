@@ -185,8 +185,7 @@ tbody td{padding:.6rem 1rem;white-space:nowrap;}
   {% set rf_avg  = (rs | map(attribute='rf_score')  | list | sum / [rs|length,1]|max) | round(1) %}
   {% set lr_avg  = (rs | map(attribute='lr_score')  | list | sum / [rs|length,1]|max) | round(1) %}
   {% set xgb_avg = (rs | map(attribute='xgb_score') | list | sum / [rs|length,1]|max) | round(1) %}
-  {% set iso_pct = (rs | selectattr('iso_flag','equalto',1) | list | length / [rs|length,1]|max * 100) | round(1) %}
-  {% set svm_pct = (rs | selectattr('svm_flag','equalto',1) | list | length / [rs|length,1]|max * 100) | round(1) %}
+    {% set svm_pct = (rs | selectattr('svm_flag','equalto',1) | list | length / [rs|length,1]|max * 100) | round(1) %}
 
   <div class="model-grid">
     <div class="model-card">
@@ -209,9 +208,9 @@ tbody td{padding:.6rem 1rem;white-space:nowrap;}
     </div>
     <div class="model-card">
       <div class="mc-name">Isolation Forest</div>
-      <div class="mc-score" style="color:var(--danger)">{{ iso_pct }}%</div>
-      <div class="mc-bar"><div class="mc-fill" style="width:{{ iso_pct }};background:var(--danger)"></div></div>
-      <div class="mc-type">Unsupervised · Anomaly</div>
+      <div class="mc-score" style="color:var(--muted)">Removed</div>
+      <div class="mc-bar"><div class="mc-fill" style="width:0%;background:var(--muted)"></div></div>
+      <div class="mc-type">Removed to prevent memory OOM on deploy</div>
     </div>
     <div class="model-card">
       <div class="mc-name">One-Class SVM</div>
@@ -320,7 +319,7 @@ tbody td{padding:.6rem 1rem;white-space:nowrap;}
           <td class="mono" style="color:var(--accent)">{{ r.rf_score }}</td>
           <td class="mono" style="color:var(--safe)">{{ r.lr_score }}</td>
           <td class="mono" style="color:var(--warn)">{{ r.xgb_score }}</td>
-          <td style="color:{% if r.iso_flag==1 %}var(--danger){% else %}var(--muted){% endif %}">{{ '⚠' if r.iso_flag==1 else '—' }}</td>
+          <td style="color:var(--muted)">N/A</td>
           <td style="color:{% if r.svm_flag==1 %}var(--purple){% else %}var(--muted){% endif %}">{{ '⚠' if r.svm_flag==1 else '—' }}</td>
           <td style="color:{% if r.rapid_movement==1 %}var(--danger){% else %}var(--muted){% endif %}">{{ '⚡' if r.rapid_movement==1 else '—' }}</td>
           <td style="color:{% if r.circular_pattern==1 %}var(--warn){% else %}var(--muted){% endif %}">{{ '↺' if r.circular_pattern==1 else '—' }}</td>

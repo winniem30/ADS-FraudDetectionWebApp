@@ -29,7 +29,47 @@ COLUMN_ALIASES = {
     'sender_created_at': 'sender_created_at',
 }
 
-# (reuse existing train helpers)
+def _save(name, obj):
+    with open(os.path.join(MODELS_DIR, f'{name}.pkl'), 'wb') as f:
+        pickle.dump(obj, f)
+
+
+def train_all_models():
+    """Bootstrap compact models for fresh deployments with empty models/."""
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.svm import OneClassSVM
+
+    np.random.seed(42)
+    n = 5000
+    accounts = [f'ACC{i:04d}' for i in range(200)]
+    df_raw = pd.DataFrame({
+        'sender_account': np.random.choice(accounts, n),
+        'receiver_account': np.random.choice(accounts, n),
+        'amount': np.where(np.random.rand(n) < 0.1, np.random.exponential(70000, n), np.random.exponential(1000, n)),
+        'timestamp': pd.date_range('2024-01-01', periods=n, freq='4min')
+    })
+    df = _engineer(df_raw)
+    X = df[FEATURE_COLS].fillna(0)
+    y = ((df['large_amount'] == 1) | (df['rapid_movement'] == 1) | (df['circular_pattern'] == 1)).astype(int)
+
+    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    rf = RandomForestClassifier(n_estimators=120, max_depth=10, random_state=42, n_jobs=-1, class_weight='balanced')
+    rf.fit(X_tr, y_tr)
+    _save('rf_model', rf)
+
+    sc = StandardScaler()
+    X_tr_sc = sc.fit_transform(X_tr)
+    lr = LogisticRegression(max_iter=800, class_weight='balanced', random_state=42)
+    lr.fit(X_tr_sc, y_tr)
+    _save('lr_model', (lr, sc))
+
+    ocsvm = OneClassSVM(kernel='rbf', nu=0.1, gamma='scale')
+    ocsvm.fit(X_tr_sc[y_tr == 0] if (y_tr == 0).any() else X_tr_sc)
+    _save('svm_model', (ocsvm, sc))
+    log.info("Model bootstrap complete.")
 
 def _engineer(df):
     df = df.copy()
@@ -50,7 +90,7 @@ def _engineer(df):
 
     df['amount'] = pd.to_numeric(df['amount'], errors='coerce').fillna(0)
     df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-    df['timestamp'] = df['timestamp'].fillna(method='ffill').fillna(pd.Timestamp('2024-01-01'))
+    df['timestamp'] = df['timestamp'].ffill().fillna(pd.Timestamp('2024-01-01'))
     df['sender_created_at'] = pd.to_datetime(df['sender_created_at'], errors='coerce').fillna(df['timestamp'])
 
     df = df.sort_values('timestamp').reset_index(drop=True)
@@ -99,10 +139,19 @@ def analyze_df(raw_df):
     df = _engineer(raw_df)
     X = df[FEATURE_COLS].fillna(0).astype(np.float32)
     n = len(X)
+    if n == 0:
+        cols = ['sender_account', 'receiver_account', 'amount', 'timestamp', 'location', 'rf_score', 'lr_score', 'xgb_score',
+                'svm_flag', 'risk_score', 'risk_level', 'rapid_movement', 'circular_pattern', 'large_amount',
+                'txn_frequency', 'amount_deviation', 'fraud_reasons', 'flagged']
+        return pd.DataFrame(columns=cols)
     if n > 30000:
         df = df.head(30000).copy(); X = X.head(30000).copy(); n = len(X)
 
     rf = _load('rf_model'); lr_bundle = _load('lr_model'); xgb = _load('xgb_model'); svm_bundle = _load('svm_model')
+    if rf is None and lr_bundle is None and svm_bundle is None and xgb is None:
+        log.warning("No persisted models found, bootstrapping default models.")
+        train_all_models()
+        rf = _load('rf_model'); lr_bundle = _load('lr_model'); xgb = _load('xgb_model'); svm_bundle = _load('svm_model')
     lr, lr_sc = (lr_bundle if isinstance(lr_bundle, tuple) else (lr_bundle, None))
     ocsvm, sv_sc = (svm_bundle if isinstance(svm_bundle, tuple) else (svm_bundle, None))
     X_sc = lr_sc.transform(X) if lr_sc is not None else X.values
@@ -134,13 +183,24 @@ def analyze_df(raw_df):
             'txn_frequency': int(row['txn_frequency']), 'amount_deviation': round(float(row['amount_deviation']), 2),
             'fraud_reasons': '; '.join(reasons[:5]),
         })
-    res = pd.DataFrame(rows)
+    cols = ['sender_account', 'receiver_account', 'amount', 'timestamp', 'location', 'rf_score', 'lr_score', 'xgb_score',
+            'svm_flag', 'risk_score', 'risk_level', 'rapid_movement', 'circular_pattern', 'large_amount',
+            'txn_frequency', 'amount_deviation', 'fraud_reasons']
+    res = pd.DataFrame(rows, columns=cols)
+    if res.empty:
+        res['flagged'] = pd.Series(dtype=int)
+        return res
     res['flagged'] = ((res['risk_level'] == 'High') | (res['risk_score'] >= 65)).astype(int)
     return res
 
 # routes unchanged with enhanced summary
 
 def allowed_file(fn): return '.' in fn and fn.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+_required = ['rf_model', 'lr_model', 'svm_model']
+if not all(os.path.exists(os.path.join(MODELS_DIR, f'{m}.pkl')) for m in _required):
+    log.info("Persisted models missing at startup. Training bootstrap models.")
+    train_all_models()
+
 @app.route('/')
 def index(): return render_template('upload.html')
 

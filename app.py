@@ -206,9 +206,32 @@ def _rule_score(row):
     return s
 
 
+def _safe_iso_predict(iso, X, chunk_size=20000):
+    """Predict anomalies with bounded memory usage."""
+    if iso is None:
+        return np.zeros(len(X), dtype=int)
+
+    n = len(X)
+    out = np.zeros(n, dtype=int)
+    # Force single-threaded execution to avoid OOM in constrained workers.
+    try:
+        iso.set_params(n_jobs=1)
+    except Exception:
+        pass
+
+    for start in range(0, n, chunk_size):
+        end = min(start + chunk_size, n)
+        try:
+            out[start:end] = (iso.predict(X.iloc[start:end]) == -1).astype(int)
+        except Exception:
+            log.exception('IsolationForest prediction failed on chunk %s:%s', start, end)
+            break
+    return out
+
+
 def analyze_df(raw_df):
     df = _engineer(raw_df)
-    X  = df[FEATURE_COLS].fillna(0)
+    X  = df[FEATURE_COLS].fillna(0).astype(np.float32)
 
     # ── Load all models ──────────────────────────────────────────────────────
     rf          = _load('rf_model')
@@ -228,7 +251,7 @@ def analyze_df(raw_df):
     rf_proba  = rf.predict_proba(X)[:, 1]       if rf    else np.zeros(n)
     lr_proba  = lr.predict_proba(X_sc)[:, 1]    if lr    else np.zeros(n)
     xgb_proba = xgb.predict_proba(X)[:, 1]      if xgb   else np.zeros(n)
-    iso_pred  = (iso.predict(X) == -1).astype(int) if iso else np.zeros(n)
+    iso_pred  = _safe_iso_predict(iso, X)
     svm_pred  = (ocsvm.predict(sv_sc.transform(X) if sv_sc else X) == -1).astype(int) \
                     if ocsvm else np.zeros(n)
 

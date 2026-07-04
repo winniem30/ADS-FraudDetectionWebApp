@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Network Analysis - AML Detection Platform{% endblock %}
+
+{% block page_title %}Network Analysis{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="network-card">
+            <div class="card-header">
+                <h5><i class="fas fa-project-diagram"></i> Transaction Network Graph</h5>
+                <div class="network-stats">
+                    <span class="badge bg-info">Nodes: {{ network_data.node_count or 0 }}</span>
+                    <span class="badge bg-info">Edges: {{ network_data.edge_count or 0 }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="networkGraph" style="height: 600px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="info-card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Network Legend</h5>
+            </div>
+            <div class="card-body">
+                <ul class="legend-list">
+                    <li>
+                        <span class="legend-color sender"></span>
+                        <span>Sender Accounts</span>
+                    </li>
+                    <li>
+                        <span class="legend-color receiver"></span>
+                        <span>Receiver Accounts</span>
+                    </li>
+                    <li>
+                        <span class="legend-color high-risk"></span>
+                        <span>High Risk (>70%)</span>
+                    </li>
+                    <li>
+                        <span class="legend-color medium-risk"></span>
+                        <span>Medium Risk (30-70%)</span>
+                    </li>
+                    <li>
+                        <span class="legend-color low-risk"></span>
+                        <span>Low Risk (<30%)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="info-card">
+            <div class="card-header">
+                <h5><i class="fas fa-lightbulb"></i> Analysis Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Zoom in/out using mouse wheel</li>
+                    <li>Pan by clicking and dragging</li>
+                    <li>Click on nodes to see transaction details</li>
+                    <li>Edge thickness indicates transaction amount</li>
+                    <li>Node color indicates risk level</li>
+                    <li>Look for circular transaction patterns</li>
+                    <li>Identify hubs with many connections</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load network graph
+if (typeof networkData !== 'undefined' && networkData.html) {
+    fetch(networkData.html)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('networkGraph').innerHTML = html;
+        });
+}
+</script>
+{% endblock %}

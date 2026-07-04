@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - AML Detection Platform{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="content-header">
+        <h1><i class="fas fa-chart-bar"></i> Analytics Dashboard</h1>
+        <p class="subtitle">Comprehensive analytics and insights</p>
+    </div>
+
+    <div class="analytics-container">
+        <!-- Time Range Selector -->
+        <div class="card time-range-selector">
+            <div class="card-body">
+                <div class="range-controls">
+                    <button class="btn btn-primary active">7 Days</button>
+                    <button class="btn btn-secondary">30 Days</button>
+                    <button class="btn btn-secondary">90 Days</button>
+                    <button class="btn btn-secondary">1 Year</button>
+                    <div class="date-picker">
+                        <input type="date" id="startDate">
+                        <span>to</span>
+                        <input type="date" id="endDate">
+                        <button class="btn btn-primary">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Transactions</h3>
+                    <p class="stat-value">12,458</p>
+                    <p class="stat-change positive"><i class="fas fa-arrow-up"></i> 12.5%</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon fraud">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Fraud Detected</h3>
+                    <p class="stat-value">234</p>
+                    <p class="stat-change negative"><i class="fas fa-arrow-down"></i> 3.2%</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon high-risk">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>High Risk</h3>
+                    <p class="stat-value">567</p>
+                    <p class="stat-change positive"><i class="fas fa-arrow-up"></i> 8.1%</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon accuracy">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Model Accuracy</h3>
+                    <p class="stat-value">94.2%</p>
+                    <p class="stat-change positive"><i class="fas fa-arrow-up"></i> 1.5%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="charts-row">
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-line"></i> Transaction Trend</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="transactionTrendChart"></canvas>
+                </div>
+            </div>
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-pie"></i> Risk Distribution</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="riskDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="charts-row">
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-bar"></i> Fraud by Category</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="fraudByCategoryChart"></canvas>
+                </div>
+            </div>
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-clock"></i> Fraud by Time</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="fraudByTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="card heatmap-card">
+            <div class="card-header">
+                <h2><i class="fas fa-th"></i> Transaction Heatmap</h2>
+            </div>
+            <div class="card-body">
+                <div id="heatmap-container"></div>
+            </div>
+        </div>
+
+        <!-- Top Risky Transactions -->
+        <div class="card top-transactions">
+            <div class="card-header">
+                <h2><i class="fas fa-list-ol"></i> Top Risky Transactions</h2>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Amount</th>
+                            <th>Risk Score</th>
+                            <th>Risk Level</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>TXN-001234</td>
+                            <td>$45,000</td>
+                            <td>95.2</td>
+                            <td><span class="badge critical">CRITICAL</span></td>
+                            <td>2024-01-15</td>
+                            <td><button class="btn btn-sm btn-primary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>TXN-001235</td>
+                            <td>$28,500</td>
+                            <td>88.7</td>
+                            <td><span class="badge high">HIGH</span></td>
+                            <td>2024-01-15</td>
+                            <td><button class="btn btn-sm btn-primary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td>TXN-001236</td>
+                            <td>$32,100</td>
+                            <td>82.4</td>
+                            <td><span class="badge high">HIGH</span></td>
+                            <td>2024-01-14</td>
+                            <td><button class="btn btn-sm btn-primary">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Transaction Trend Chart
+const trendCtx = document.getElementById('transactionTrendChart').getContext('2d');
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Transactions',
+            data: [1200, 1350, 1100, 1450, 1300, 900, 850],
+            borderColor: '#007bff',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Risk Distribution Chart
+const riskCtx = document.getElementById('riskDistributionChart').getContext('2d');
+new Chart(riskCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Safe', 'Low', 'Medium', 'High', 'Critical'],
+        datasets: [{
+            data: [65, 15, 10, 7, 3],
+            backgroundColor: ['#28a745', '#17a2b8', '#fd7e14', '#dc3545', '#6f0a0a']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Fraud by Category Chart
+const categoryCtx = document.getElementById('fraudByCategoryChart').getContext('2d');
+new Chart(categoryCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Transfer', 'Payment', 'Withdrawal', 'Deposit'],
+        datasets: [{
+            label: 'Fraud Count',
+            data: [45, 32, 28, 15],
+            backgroundColor: '#dc3545'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Fraud by Time Chart
+const timeCtx = document.getElementById('fraudByTimeChart').getContext('2d');
+new Chart(timeCtx, {
+    type: 'bar',
+    data: {
+        labels: ['00-4', '4-8', '8-12', '12-16', '16-20', '20-24'],
+        datasets: [{
+            label: 'Fraud Count',
+            data: [12, 8, 15, 25, 30, 18],
+            backgroundColor: '#fd7e14'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - AML Detection Platform{% endblock %}
+
+{% block page_title %}Reports{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="report-card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-csv"></i> Generate CSV Report</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('report.generate_report') }}">
+                    <input type="hidden" name="report_type" value="csv">
+                    <div class="form-group mb-3">
+                        <label for="uploadId">Select Upload</label>
+                        <select class="form-select" id="uploadId" name="upload_id">
+                            <option value="">All transactions</option>
+                            <!-- Options would be populated dynamically -->
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-download"></i> Download CSV
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="report-card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-excel"></i> Generate Excel Report</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('report.generate_report') }}">
+                    <input type="hidden" name="report_type" value="excel">
+                    <div class="form-group mb-3">
+                        <label for="uploadIdExcel">Select Upload</label>
+                        <select class="form-select" id="uploadIdExcel" name="upload_id">
+                            <option value="">All transactions</option>
+                            <!-- Options would be populated dynamically -->
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-download"></i> Download Excel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="report-card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-pdf"></i> PDF Report Summary</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Generate a comprehensive PDF report including:</p>
+                <ul>
+                    <li>Executive summary</li>
+                    <li>Risk distribution charts</li>
+                    <li>Spider charts for high-risk transactions</li>
+                    <li>Model performance metrics</li>
+                    <li>Recommendations</li>
+                </ul>
+                <button class="btn btn-danger" id="generatePdf">
+                    <i class="fas fa-file-pdf"></i> Generate PDF Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

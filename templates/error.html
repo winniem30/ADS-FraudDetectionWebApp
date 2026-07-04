@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Error - AML Detection Platform{% endblock %}
+
+{% block page_title %}Error{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle fa-5x"></i>
+            </div>
+            <h2>{{ error or 'An Error Occurred' }}</h2>
+            <p class="text-muted">Something went wrong. Please try again or contact support.</p>
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

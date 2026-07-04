@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Spider Chart Analysis - AML Detection Platform{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="content-header">
+        <h1><i class="fas fa-spider"></i> Spider Chart Analysis</h1>
+        <p class="subtitle">Interactive risk visualization with multi-axis analysis</p>
+    </div>
+
+    <div class="spider-container">
+        <!-- Spider Chart -->
+        <div class="card spider-chart-card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-radar"></i> Risk Analysis Spider Chart</h2>
+                <div class="chart-controls">
+                    <button class="btn btn-secondary" onclick="exportChart('png')">
+                        <i class="fas fa-download"></i> Export PNG
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportChart('html')">
+                        <i class="fas fa-code"></i> Export HTML
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="spider-chart-container">
+                    {% if spider_chart %}
+                    <iframe src="{{ url_for('static', filename='charts/' + spider_chart.html.split('/')[-1]) }}" 
+                            width="100%" 
+                            height="500" 
+                            frameborder="0"></iframe>
+                    {% else %}
+                    <p>No spider chart available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Axis Details -->
+        <div class="card axis-details">
+            <div class="card-header">
+                <h2><i class="fas fa-list"></i> Axis Details</h2>
+            </div>
+            <div class="card-body">
+                <div class="axis-list">
+                    {% for axis in spider_chart.axes %}
+                    <div class="axis-item">
+                        <span class="axis-name">{{ axis }}</span>
+                        <span class="axis-value">{{ spider_features.get(axis, 50) }}/100</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Breakdown -->
+        <div class="card risk-breakdown">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-pie"></i> Risk Breakdown</h2>
+            </div>
+            <div class="card-body">
+                <div class="risk-breakdown-chart">
+                    <canvas id="riskBreakdownChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historical Comparison -->
+        <div class="card historical-comparison">
+            <div class="card-header">
+                <h2><i class="fas fa-history"></i> Historical Comparison</h2>
+            </div>
+            <div class="card-body">
+                <div class="comparison-chart">
+                    <canvas id="historicalChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Risk Breakdown Chart
+const riskCtx = document.getElementById('riskBreakdownChart').getContext('2d');
+new Chart(riskCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Safe', 'Low Risk', 'Medium Risk', 'High Risk', 'Critical'],
+        datasets: [{
+            data: [30, 25, 20, 15, 10],
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#fd7e14',
+                '#dc3545',
+                '#6f0a0a'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Historical Comparison Chart
+const histCtx = document.getElementById('historicalChart').getContext('2d');
+new Chart(histCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'Risk Score',
+            data: [45, 52, 48, 60, 55, 65],
+            borderColor: '#dc3545',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+function exportChart(format) {
+    if (format === 'png') {
+        window.open('{{ url_for("static", filename="charts/" + spider_chart.png.split("/")[-1]) }}', '_blank');
+    } else if (format === 'html') {
+        window.open('{{ url_for("static", filename="charts/" + spider_chart.html.split("/")[-1]) }}', '_blank');
+    }
+}
+</script>
+{% endblock %}

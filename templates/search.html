@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Search - AML Detection Platform{% endblock %}
+
+{% block page_title %}Search Transactions{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="search-card">
+            <div class="card-body">
+                <form method="GET" class="search-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-lg" 
+                               name="q" value="{{ query }}" 
+                               placeholder="Search by transaction ID, sender, receiver, bank, etc.">
+                        <select class="form-select" name="field" style="max-width: 150px;">
+                            <option value="all" {% if field == 'all' %}selected{% endif %}>All Fields</option>
+                            <option value="sender" {% if field == 'sender' %}selected{% endif %}>Sender</option>
+                            <option value="receiver" {% if field == 'receiver' %}selected{% endif %}>Receiver</option>
+                            <option value="bank" {% if field == 'bank' %}selected{% endif %}>Bank</option>
+                            <option value="location" {% if field == 'location' %}selected{% endif %}>Location</option>
+                        </select>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if query %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="results-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Search Results ({{ results|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Sender</th>
+                                <th>Receiver</th>
+                                <th>Amount</th>
+                                <th>Risk Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in results %}
+                            <tr class="risk-{{ tx.risk_level }}">
+                                <td>{{ tx.id }}</td>
+                                <td>{{ tx.sender or 'N/A' }}</td>
+                                <td>{{ tx.receiver or 'N/A' }}</td>
+                                <td>${{ "{:,.2f}".format(tx.amount) if tx.amount else '0.00' }}</td>
+                                <td>
+                                    <span class="badge badge-{{ tx.risk_level }}">{{ tx.risk_level|title }}</span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('analysis.transaction_detail', transaction_id=tx.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No results found for "{{ query }}"</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

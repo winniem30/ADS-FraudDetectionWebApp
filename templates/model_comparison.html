@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Model Comparison - AML Detection Platform{% endblock %}
+
+{% block page_title %}Model Comparison{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="comparison-card">
+            <div class="card-header">
+                <h5><i class="fas fa-balance-scale"></i> ML Model Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="model-grid">
+                    {% for model_name, status in model_status.items() %}
+                    <div class="model-card {{ 'available' if status.available else 'unavailable' }}">
+                        <div class="model-icon">
+                            <i class="fas {{ 'fa-check-circle' if status.available else 'fa-times-circle' }}"></i>
+                        </div>
+                        <h6>{{ model_name.replace('_', ' ').title() }}</h6>
+                        <span class="status-badge {{ 'bg-success' if status.available else 'bg-danger' }}">
+                            {{ 'Available' if status.available else 'Unavailable' }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="comparison-card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Compare Models on Dataset</h5>
+            </div>
+            <div class="card-body">
+                <form id="comparisonForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="uploadId">Select Upload</label>
+                            <select class="form-select" id="uploadId" required>
+                                <option value="">Select an upload...</option>
+                                <!-- Options would be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-play"></i> Run Comparison
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="comparisonResults" style="display: none;">
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="card-header">
+                    <h6>Execution Time</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="executionTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="card-header">
+                    <h6>Fraud Detection Rate</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="fraudRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="card-header">
+                    <h6>Mean Probability</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="meanProbChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('comparisonForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const uploadId = document.getElementById('uploadId').value;
+    if (!uploadId) {
+        alert('Please select an upload');
+        return;
+    }
+    
+    fetch('/analysis/api/model-comparison', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ upload_id: uploadId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('comparisonResults').style.display = 'block';
+        // Render charts with comparison data
+        renderComparisonCharts(data);
+    })
+    .catch(error => {
+        alert('Error: ' + error);
+    });
+});
+
+function renderComparisonCharts(data) {
+    const models = Object.keys(data);
+    const execTimes = models.map(m => data[m].execution_time || 0);
+    const fraudRates = models.map(m => data[m].fraud_rate || 0);
+    const meanProbs = models.map(m => data[m].mean_probability || 0);
+    
+    // Execution Time Chart
+    new Chart(document.getElementById('executionTimeChart'), {
+        type: 'bar',
+        data: {
+            labels: models,
+            datasets: [{
+                label: 'Execution Time (s)',
+                data: execTimes,
+                backgroundColor: '#667eea'
+            }]
+        },
+        options: { responsive: true }
+    });
+    
+    // Fraud Rate Chart
+    new Chart(document.getElementById('fraudRateChart'), {
+        type: 'bar',
+        data: {
+            labels: models,
+            datasets: [{
+                label: 'Fraud Rate',
+                data: fraudRates,
+                backgroundColor: '#dc3545'
+            }]
+        },
+        options: { responsive: true }
+    });
+    
+    // Mean Probability Chart
+    new Chart(document.getElementById('meanProbChart'), {
+        type: 'bar',
+        data: {
+            labels: models,
+            datasets: [{
+                label: 'Mean Probability',
+                data: meanProbs,
+                backgroundColor: '#28a745'
+            }]
+        },
+        options: { responsive: true }
+    });
+}
+</script>
+{% endblock %}

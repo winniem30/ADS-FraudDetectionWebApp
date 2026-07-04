@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction Detail - AML Detection Platform{% endblock %}
+
+{% block page_title %}Transaction Detail{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Transaction Info -->
+    <div class="col-lg-6">
+        <div class="detail-card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Transaction Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th>Transaction ID:</th>
+                        <td>{{ transaction.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Sender:</th>
+                        <td>{{ transaction.sender or 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Receiver:</th>
+                        <td>{{ transaction.receiver or 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Amount:</th>
+                        <td>${{ "{:,.2f}".format(transaction.amount) if transaction.amount else '0.00' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Timestamp:</th>
+                        <td>{{ transaction.timestamp or 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Bank:</th>
+                        <td>{{ transaction.bank or 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Location:</th>
+                        <td>{{ transaction.location or 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Merchant:</th>
+                        <td>{{ transaction.merchant or 'N/A' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Analysis -->
+    <div class="col-lg-6">
+        <div class="detail-card">
+            <div class="card-header">
+                <h5><i class="fas fa-shield-alt"></i> Risk Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="risk-summary">
+                    <div class="risk-badge-large badge-{{ transaction.risk_level }}">
+                        {{ transaction.risk_level|title }} Risk
+                    </div>
+                    <div class="risk-score-display">
+                        <span class="score-value">{{ "{:.1f}".format(transaction.risk_score) if transaction.risk_score else '0.0' }}%</span>
+                        <span class="score-label">Risk Score</span>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <table class="table table-borderless">
+                    <tr>
+                        <th>Prediction:</th>
+                        <td>
+                            <span class="badge {{ 'bg-danger' if transaction.prediction == 1 else 'bg-success' }}">
+                                {{ 'Suspicious' if transaction.prediction == 1 else 'Legitimate' }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Probability:</th>
+                        <td>{{ "{:.2f}".format(transaction.probability * 100) if transaction.probability else '0.00' }}%</td>
+                    </tr>
+                    <tr>
+                        <th>Confidence:</th>
+                        <td>{{ "{:.1f}".format(transaction.confidence_score) if transaction.confidence_score else '0.0' }}%</td>
+                    </tr>
+                    <tr>
+                        <th>Model Used:</th>
+                        <td>{{ transaction.model_used or 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Execution Time:</th>
+                        <td>{{ "{:.4f}".format(transaction.execution_time) if transaction.execution_time else '0.0000' }}s</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Spider Chart -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="chart-card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-radar"></i> Risk Spider Chart</h5>
+                <button class="btn btn-sm btn-outline-primary" id="exportSpider">
+                    <i class="fas fa-download"></i> Export PNG
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="spiderChart" style="height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recommendations -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="recommendation-card">
+            <div class="card-header">
+                <h5><i class="fas fa-lightbulb"></i> Recommendations</h5>
+            </div>
+            <div class="card-body">
+                {% if transaction.risk_level in ['high', 'critical'] %}
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle"></i> High Risk Alert</h6>
+                    <p>This transaction has been flagged as high risk. Immediate investigation is recommended.</p>
+                    <ul>
+                        <li>Review sender and receiver account history</li>
+                        <li>Verify transaction legitimacy with customer</li>
+                        <li>Consider placing a hold on related accounts</li>
+                        <li>Report to compliance team for further review</li>
+                    </ul>
+                </div>
+                {% elif transaction.risk_level == 'medium' %}
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-circle"></i> Medium Risk Warning</h6>
+                    <p>This transaction shows some risk indicators. Enhanced monitoring is recommended.</p>
+                    <ul>
+                        <li>Monitor related transactions for patterns</li>
+                        <li>Review account activity over next 30 days</li>
+                        <li>Consider additional verification for future transactions</li>
+                    </ul>
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-check-circle"></i> Low Risk</h6>
+                    <p>This transaction appears to be within normal risk parameters.</p>
+                    <ul>
+                        <li>Continue standard monitoring</li>
+                        <li>No immediate action required</li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load spider chart
+if (typeof spiderChart !== 'undefined') {
+    Plotly.newPlot('spiderChart', JSON.parse('{{ spider_chart.data|safe }}'), {
+        displayModeBar: true,
+        responsive: true
+    });
+}
+
+// Export spider chart
+document.getElementById('exportSpider').addEventListener('click', function() {
+    Plotly.downloadImage('spiderChart', {
+        format: 'png',
+        width: 1200,
+        height: 800,
+        filename: 'spider_chart_{{ transaction.id }}'
+    });
+});
+</script>
+{% endblock %}

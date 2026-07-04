@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - AML Detection Platform{% endblock %}
+
+{% block page_title %}Transactions{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="filter-card">
+            <div class="card-header">
+                <h5><i class="fas fa-filter"></i> Filters</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="toggleFilters">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="card-body" id="filterBody">
+                <form id="filterForm" method="GET" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="riskLevel">Risk Level</label>
+                        <select class="form-select" id="riskLevel" name="risk_level">
+                            <option value="">All</option>
+                            <option value="safe" {% if filters.risk_level == 'safe' %}selected{% endif %}>Safe</option>
+                            <option value="low" {% if filters.risk_level == 'low' %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if filters.risk_level == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="high" {% if filters.risk_level == 'high' %}selected{% endif %}>High</option>
+                            <option value="critical" {% if filters.risk_level == 'critical' %}selected{% endif %}>Critical</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="prediction">Prediction</label>
+                        <select class="form-select" id="prediction" name="prediction">
+                            <option value="">All</option>
+                            <option value="0" {% if filters.prediction == '0' %}selected{% endif %}>Legitimate</option>
+                            <option value="1" {% if filters.prediction == '1' %}selected{% endif %}>Suspicious</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="minAmount">Min Amount</label>
+                        <input type="number" class="form-control" id="minAmount" name="min_amount" value="{{ filters.min_amount or '' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="maxAmount">Max Amount</label>
+                        <input type="number" class="form-control" id="maxAmount" name="max_amount" value="{{ filters.max_amount or '' }}">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Apply Filters
+                        </button>
+                        <a href="{{ url_for('analysis.transactions') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transactions Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="table-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Transaction List</h5>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-outline-primary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Sender</th>
+                                <th>Receiver</th>
+                                <th>Amount</th>
+                                <th>Risk Level</th>
+                                <th>Risk Score</th>
+                                <th>Model</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in transactions %}
+                            <tr class="risk-{{ tx.risk_level }}">
+                                <td>{{ tx.id }}</td>
+                                <td>{{ tx.sender or 'N/A' }}</td>
+                                <td>{{ tx.receiver or 'N/A' }}</td>
+                                <td>${{ "{:,.2f}".format(tx.amount) if tx.amount else '0.00' }}</td>
+                                <td>
+                                    <span class="badge badge-{{ tx.risk_level }}">{{ tx.risk_level|title }}</span>
+                                </td>
+                                <td>{{ "{:.1f}".format(tx.risk_score) if tx.risk_score else '0.0' }}%</td>
+                                <td>{{ tx.model_used or 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('analysis.transaction_detail', transaction_id=tx.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">No transactions found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                            <a class="page-link" href="?page={{ page - 1 }}">Previous</a>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">{{ page }}</span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page + 1 }}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('toggleFilters').addEventListener('click', function() {
+    const filterBody = document.getElementById('filterBody');
+    filterBody.classList.toggle('d-none');
+});
+</script>
+{% endblock %}

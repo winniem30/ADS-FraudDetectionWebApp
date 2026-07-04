@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - AML Detection Platform{% endblock %}
+
+{% block page_title %}Admin Panel{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="fas fa-brain"></i> Model Performance</h5>
+            </div>
+            <div class="card-body">
+                {% if model_performance %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1 Score</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for perf in model_performance %}
+                            <tr>
+                                <td>{{ perf.model_name }}</td>
+                                <td>{{ "{:.2f}".format(perf.accuracy) if perf.accuracy else 'N/A' }}</td>
+                                <td>{{ "{:.2f}".format(perf.precision) if perf.precision else 'N/A' }}</td>
+                                <td>{{ "{:.2f}".format(perf.recall) if perf.recall else 'N/A' }}</td>
+                                <td>{{ "{:.2f}".format(perf.f1_score) if perf.f1_score else 'N/A' }}</td>
+                                <td>{{ perf.test_date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No model performance data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="fas fa-database"></i> Dataset Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Transactions</span>
+                        <span class="stat-value">{{ stats.total_transactions or 0 }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Uploads</span>
+                        <span class="stat-value">{{ stats.total_uploads or 0 }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Alerts</span>
+                        <span class="stat-value">{{ stats.total_alerts or 0 }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Active Users</span>
+                        <span class="stat-value">{{ stats.active_users or 0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list-alt"></i> System Logs</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="refreshLogs">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                {% if system_logs %}
+                <div class="log-container">
+                    {% for log in system_logs %}
+                    <div class="log-entry log-{{ log.level }}">
+                        <span class="log-time">{{ log.created_at }}</span>
+                        <span class="log-level">{{ log.level }}</span>
+                        <span class="log-module">{{ log.module }}</span>
+                        <span class="log-message">{{ log.message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No system logs available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('refreshLogs').addEventListener('click', function() {
+    location.reload();
+});
+</script>
+{% endblock %}

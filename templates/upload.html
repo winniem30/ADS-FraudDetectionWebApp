@@ -1,168 +1,215 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload Transactions | ADS</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --accent: #00d4ff; --danger: #ff4757; --safe: #2ed573;
-    --warn: #ffa502; --text: #e2e8f0; --muted: #64748b;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: linear-gradient(135deg, #0a1628 0%, #0d2137 40%, #0a1f2e 100%);
-    color: var(--text); font-family: 'DM Sans', sans-serif;
-    min-height: 100vh; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; overflow: hidden; position: relative;
-  }
-  .spider-bg {
-    position: fixed; inset: 0; width: 100%; height: 100%;
-    z-index: 0; animation: pulse-web 4s ease-in-out infinite;
-  }
-  @keyframes pulse-web { 0%,100%{opacity:.18} 50%{opacity:.28} }
-  .glow {
-    position: fixed; width: 600px; height: 600px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(13,148,136,0.15) 0%, transparent 70%);
-    top: 50%; left: 50%; transform: translate(-50%,-50%);
-    z-index: 0; pointer-events: none;
-  }
-  .content {
-    position: relative; z-index: 10;
-    display: flex; flex-direction: column; align-items: center;
-    width: 100%; padding: 2rem;
-  }
-  .logo-badge {
-    font-family: 'Space Mono', monospace; font-size: 0.7rem;
-    letter-spacing: 0.3em; color: var(--accent);
-    text-transform: uppercase; margin-bottom: 0.75rem; opacity: 0.8;
-  }
-  h1 {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(1.6rem, 4vw, 2.8rem); font-weight: 700;
-    text-align: center; margin-bottom: 0.5rem;
-    color: var(--accent); text-shadow: 0 0 30px rgba(0,212,255,0.4);
-  }
-  .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2.5rem; text-align: center; }
-  .card {
-    background: rgba(10,14,26,0.88); border: 1px solid rgba(0,212,255,0.2);
-    border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 420px;
-    box-shadow: 0 0 60px rgba(0,212,255,0.08), 0 25px 50px rgba(0,0,0,0.6);
-    backdrop-filter: blur(12px);
-  }
-  .card-title {
-    font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 700;
-    text-align: center; margin-bottom: 1.75rem;
-    display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-  }
-  .file-label {
-    display: flex; align-items: center; width: 100%;
-    border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
-    overflow: hidden; margin-bottom: 1rem; cursor: pointer; transition: border-color 0.2s;
-  }
-  .file-label:hover { border-color: var(--accent); }
-  .file-label .choose {
-    padding: 0.75rem 1rem; background: rgba(255,255,255,0.08);
-    color: var(--text); font-size: 0.85rem; white-space: nowrap;
-    border-right: 1px solid rgba(255,255,255,0.1);
-  }
-  .file-label .fname {
-    padding: 0.75rem 1rem; font-size: 0.82rem; color: var(--muted);
-    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  input[type=file] { display: none; }
-  .error {
-    background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.4);
-    border-radius: 8px; padding: 0.7rem 1rem; color: var(--danger);
-    font-size: 0.82rem; margin-bottom: 1rem;
-  }
-  .btn-analyze {
-    width: 100%; padding: 0.85rem; background: var(--accent); color: #000;
-    border: none; border-radius: 8px; font-family: 'Space Mono', monospace;
-    font-size: 0.9rem; font-weight: 700; cursor: pointer; letter-spacing: 0.05em;
-    transition: all 0.2s; box-shadow: 0 0 20px rgba(0,212,255,0.3);
-  }
-  .btn-analyze:hover { background: #22e0ff; box-shadow: 0 0 30px rgba(0,212,255,0.5); transform: translateY(-1px); }
-  .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .hint { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 1rem; }
-  .progress { display: none; margin-top: 1rem; }
-  .progress-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--accent); animation: prog 2s ease-in-out infinite; border-radius: 3px; }
-  @keyframes prog { 0%{width:0%} 70%{width:85%} 100%{width:100%} }
-  .progress p { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; text-align: center; font-family: 'Space Mono', monospace; }
-  .pills { display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center; }
-  .pill { padding: 0.28rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-family: 'Space Mono', monospace; border: 1px solid; }
-  .p-blue { border-color: rgba(0,212,255,0.3); color: var(--accent); background: rgba(0,212,255,0.07); }
-  .p-red  { border-color: rgba(255,71,87,0.3); color: var(--danger); background: rgba(255,71,87,0.07); }
-  .p-grn  { border-color: rgba(46,213,115,0.3); color: var(--safe); background: rgba(46,213,115,0.07); }
-  .p-ylw  { border-color: rgba(255,165,2,0.3); color: var(--warn); background: rgba(255,165,2,0.07); }
-</style>
-</head>
-<body>
-<svg class="spider-bg" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-  <g stroke="#4dd0c4" stroke-width="0.8" fill="none" transform="translate(400,400)">
-    <line x1="0" y1="0" x2="0" y2="-380"/>
-    <line x1="0" y1="0" x2="270" y2="-270"/>
-    <line x1="0" y1="0" x2="380" y2="0"/>
-    <line x1="0" y1="0" x2="270" y2="270"/>
-    <line x1="0" y1="0" x2="0" y2="380"/>
-    <line x1="0" y1="0" x2="-270" y2="270"/>
-    <line x1="0" y1="0" x2="-380" y2="0"/>
-    <line x1="0" y1="0" x2="-270" y2="-270"/>
-    <polygon points="0,-60 42,-42 60,0 42,42 0,60 -42,42 -60,0 -42,-42"/>
-    <polygon points="0,-120 85,-85 120,0 85,85 0,120 -85,85 -120,0 -85,-85"/>
-    <polygon points="0,-180 127,-127 180,0 127,127 0,180 -127,127 -180,0 -127,-127"/>
-    <polygon points="0,-240 170,-170 240,0 170,170 0,240 -170,170 -240,0 -170,-170"/>
-    <polygon points="0,-300 212,-212 300,0 212,212 0,300 -212,212 -300,0 -212,-212"/>
-    <polygon points="0,-360 255,-255 360,0 255,255 0,360 -255,255 -360,0 -255,-255"/>
-    <circle cx="0" cy="0" r="4" fill="#4dd0c4" opacity="0.6"/>
-  </g>
-</svg>
-<div class="glow"></div>
-<div class="content">
-  <div class="logo-badge">▶ ADS · Accurate Detection Services</div>
-  <h1>Upload Transactions</h1>
-  <p class="subtitle">AI-Powered Money Laundering Detection · 5 ML Models</p>
-  <div class="card">
-    <div class="card-title">📤 Upload Transactions (CSV)</div>
-    {% if error %}<div class="error">⚠ {{ error }}</div>{% endif %}
-    <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
-      <label class="file-label" for="fileInput">
-        <span class="choose">Choose file</span>
-        <span class="fname" id="fname">No file chosen</span>
-      </label>
-      <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" required>
-      <div class="progress" id="progress">
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-        <p>Running 5 ML models · Building SpyderMap · Scoring risks...</p>
-      </div>
-      <button type="submit" class="btn-analyze" id="submitBtn">Analyze Transactions</button>
-    </form>
-    <p class="hint">Supports CSV · XLSX · Max 50MB</p>
-  </div>
-  <div class="pills">
-    <span class="pill p-blue">Random Forest</span>
-    <span class="pill p-ylw">XGBoost</span>
-    <span class="pill p-red">Isolation Forest</span>
-    <span class="pill p-grn">One-Class SVM</span>
-    <span class="pill p-blue">Logistic Regression</span>
-  </div>
+{% extends "base.html" %}
+
+{% block title %}Upload Dataset - AML Detection Platform{% endblock %}
+
+{% block page_title %}Upload Dataset{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="upload-card">
+            <div class="card-header">
+                <h5><i class="fas fa-cloud-upload-alt"></i> Upload Transaction Dataset</h5>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                </div>
+                {% endif %}
+
+                <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="modelSelect">Select Model</label>
+                        <select class="form-select" id="modelSelect" name="model">
+                            <option value="random_forest">Random Forest</option>
+                            <option value="xgboost">XGBoost</option>
+                            <option value="svm">SVM</option>
+                            <option value="compare_all">Compare All Models</option>
+                        </select>
+                    </div>
+
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-content">
+                            <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                            <p>Drag & drop your file here or</p>
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                Browse Files
+                            </button>
+                            <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" style="display: none;">
+                            <p class="text-muted small mt-2">Supported formats: CSV, Excel (XLSX, XLS)</p>
+                            <p class="text-muted small">Maximum file size: 16MB</p>
+                        </div>
+                    </div>
+
+                    <div id="fileInfo" class="file-info" style="display: none;">
+                        <div class="file-details">
+                            <i class="fas fa-file-csv"></i>
+                            <span id="fileName"></span>
+                            <button type="button" class="btn btn-sm btn-outline-danger" id="removeFile">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="uploadProgress" class="upload-progress" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-center mt-2" id="progressText">Uploading...</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block mt-3" id="uploadBtn" disabled>
+                        <i class="fas fa-upload"></i> Upload & Analyze
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="info-card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Required Data Columns</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Your dataset should contain the following columns:</p>
+                <ul>
+                    <li><strong>sender</strong> - Sender account ID</li>
+                    <li><strong>receiver</strong> - Receiver account ID</li>
+                    <li><strong>amount</strong> - Transaction amount</li>
+                    <li><strong>timestamp</strong> - Transaction date/time (optional)</li>
+                    <li><strong>bank</strong> - Bank name (optional)</li>
+                    <li><strong>location</strong> - Location (optional)</li>
+                    <li><strong>merchant</strong> - Merchant category (optional)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-  const inp = document.getElementById('fileInput');
-  const fn  = document.getElementById('fname');
-  const frm = document.getElementById('uploadForm');
-  const prg = document.getElementById('progress');
-  const btn = document.getElementById('submitBtn');
-  inp.addEventListener('change', () => {
-    fn.textContent = inp.files[0] ? inp.files[0].name : 'No file chosen';
-    fn.style.color = inp.files[0] ? '#00d4ff' : '';
-  });
-  frm.addEventListener('submit', () => {
-    prg.style.display = 'block';
-    btn.disabled = true; btn.textContent = 'Analysing...';
-  });
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileInfo = document.getElementById('fileInfo');
+const fileName = document.getElementById('fileName');
+const removeFile = document.getElementById('removeFile');
+const uploadBtn = document.getElementById('uploadBtn');
+const uploadProgress = document.getElementById('uploadProgress');
+const progressBar = uploadProgress.querySelector('.progress-bar');
+const progressText = document.getElementById('progressText');
+
+// Drag and drop handlers
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFile(files[0]);
+    }
+});
+
+// File input handler
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+// Remove file handler
+removeFile.addEventListener('click', () => {
+    fileInput.value = '';
+    fileInfo.style.display = 'none';
+    dropZone.style.display = 'block';
+    uploadBtn.disabled = true;
+});
+
+// Handle file selection
+function handleFile(file) {
+    const validExtensions = ['.csv', '.xlsx', '.xls'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    
+    if (!validExtensions.includes(fileExtension)) {
+        alert('Please upload a CSV or Excel file.');
+        return;
+    }
+    
+    if (file.size > 16 * 1024 * 1024) {
+        alert('File size exceeds 16MB limit.');
+        return;
+    }
+    
+    fileName.textContent = file.name;
+    dropZone.style.display = 'none';
+    fileInfo.style.display = 'block';
+    uploadBtn.disabled = false;
+}
+
+// Form submission
+document.getElementById('uploadForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    uploadBtn.disabled = true;
+    uploadProgress.style.display = 'block';
+    
+    const formData = new FormData(e.target);
+    
+    // Simulate progress
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 10;
+        progressBar.style.width = progress + '%';
+        
+        if (progress < 30) {
+            progressText.textContent = 'Uploading file...';
+        } else if (progress < 60) {
+            progressText.textContent = 'Preprocessing data...';
+        } else if (progress < 90) {
+            progressText.textContent = 'Running ML models...';
+        } else {
+            progressText.textContent = 'Generating results...';
+        }
+        
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+        }
+    }, 200);
+    
+    // Submit form
+    fetch('/upload/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressText.textContent = 'Complete!';
+        
+        if (data.status === 'success') {
+            alert(`Upload successful!\n\nTotal transactions: ${data.total_transactions}\nHigh risk: ${data.high_risk_count}`);
+            window.location.href = '/dashboard/dashboard';
+        } else {
+            alert('Error: ' + data.error);
+            uploadBtn.disabled = false;
+            uploadProgress.style.display = 'none';
+        }
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        alert('Error: ' + error);
+        uploadBtn.disabled = false;
+        uploadProgress.style.display = 'none';
+    });
+});
 </script>
-</body>
-</html>
+{% endblock %}

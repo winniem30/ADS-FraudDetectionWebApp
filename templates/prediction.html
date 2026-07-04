@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction - AML Detection Platform{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="content-header">
+        <h1><i class="fas fa-brain"></i> Prediction Results</h1>
+        <p class="subtitle">View detailed prediction analysis and model explainability</p>
+    </div>
+
+    <div class="prediction-container">
+        <!-- Prediction Summary -->
+        <div class="card prediction-summary">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-line"></i> Prediction Summary</h2>
+            </div>
+            <div class="card-body">
+                <div class="prediction-result">
+                    <div class="prediction-badge {{ 'fraud' if prediction == 1 else 'legitimate' }}">
+                        {{ 'FRAUD DETECTED' if prediction == 1 else 'LEGITIMATE' }}
+                    </div>
+                    <div class="prediction-details">
+                        <div class="detail-item">
+                            <span class="label">Probability:</span>
+                            <span class="value">{{ "%.2f%%"|format(probability * 100) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Risk Score:</span>
+                            <span class="value">{{ "%.2f"|format(risk_score) }}/100</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Risk Level:</span>
+                            <span class="value risk-{{ risk_level }}">{{ risk_level|upper }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Confidence:</span>
+                            <span class="value">{{ "%.2f%%"|format(confidence_score) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Model:</span>
+                            <span class="value">{{ model_used|upper }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Execution Time:</span>
+                            <span class="value">{{ "%.4f"|format(execution_time) }}s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Importance -->
+        <div class="card feature-importance">
+            <div class="card-header">
+                <h2><i class="fas fa-list-ol"></i> Feature Importance</h2>
+            </div>
+            <div class="card-body">
+                <div class="feature-list">
+                    {% for feature, importance in feature_importance.items() %}
+                    <div class="feature-item">
+                        <span class="feature-name">{{ feature }}</span>
+                        <div class="feature-bar">
+                            <div class="bar-fill" style="width: {{ (importance * 100) }}%"></div>
+                        </div>
+                        <span class="feature-value">{{ "%.4f"|format(importance) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SHAP Explanation -->
+        <div class="card shap-explanation">
+            <div class="card-header">
+                <h2><i class="fas fa-lightbulb"></i> Model Explainability (SHAP)</h2>
+            </div>
+            <div class="card-body">
+                {% if shap_explanation %}
+                <div class="shap-plots">
+                    <div class="shap-plot">
+                        <h3>Force Plot</h3>
+                        {% if shap_explanation.force_plot %}
+                        <img src="data:image/png;base64,{{ shap_explanation.force_plot.image }}" alt="Force Plot">
+                        {% else %}
+                        <p>Force plot not available</p>
+                        {% endif %}
+                    </div>
+                    <div class="shap-plot">
+                        <h3>Waterfall Plot</h3>
+                        {% if shap_explanation.waterfall_plot %}
+                        <img src="data:image/png;base64,{{ shap_explanation.waterfall_plot.image }}" alt="Waterfall Plot">
+                        {% else %}
+                        <p>Waterfall plot not available</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <p>SHAP explanation not available for this model.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="card recommendation">
+            <div class="card-header">
+                <h2><i class="fas fa-clipboard-check"></i> Recommendation</h2>
+            </div>
+            <div class="card-body">
+                <div class="recommendation-content {{ risk_level }}">
+                    {% if risk_level == 'safe' %}
+                    <i class="fas fa-check-circle"></i>
+                    <p>This transaction appears to be normal. No immediate action required.</p>
+                    {% elif risk_level == 'low' %}
+                    <i class="fas fa-info-circle"></i>
+                    <p>This transaction has minor risk indicators. Consider monitoring for patterns.</p>
+                    {% elif risk_level == 'medium' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>This transaction shows moderate risk. Manual review recommended.</p>
+                    {% elif risk_level == 'high' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>This transaction is high risk. Immediate investigation required.</p>
+                    {% else %}
+                    <i class="fas fa-ban"></i>
+                    <p>This transaction is critical risk. Urgent action required. Block transaction and investigate.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

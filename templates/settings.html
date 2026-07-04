@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - AML Detection Platform{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="content-header">
+        <h1><i class="fas fa-cog"></i> Settings</h1>
+        <p class="subtitle">Configure application settings and preferences</p>
+    </div>
+
+    <div class="settings-container">
+        <!-- Profile Settings -->
+        <div class="card settings-section">
+            <div class="card-header">
+                <h2><i class="fas fa-user"></i> Profile Settings</h2>
+            </div>
+            <div class="card-body">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" value="{{ session.username }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="admin@aml.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" id="role" name="role" value="{{ session.role|title }}" readonly>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="card settings-section">
+            <div class="card-header">
+                <h2><i class="fas fa-shield-alt"></i> Security Settings</h2>
+            </div>
+            <div class="card-body">
+                <form id="securityForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Model Settings -->
+        <div class="card settings-section">
+            <div class="card-header">
+                <h2><i class="fas fa-brain"></i> Model Settings</h2>
+            </div>
+            <div class="card-body">
+                <form id="modelForm">
+                    <div class="form-group">
+                        <label for="defaultModel">Default Model</label>
+                        <select id="defaultModel" name="defaultModel">
+                            <option value="random_forest">Random Forest</option>
+                            <option value="svm">SVM</option>
+                            <option value="xgboost">XGBoost</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="riskThreshold">Risk Threshold</label>
+                        <input type="range" id="riskThreshold" name="riskThreshold" min="0" max="100" value="50">
+                        <span class="threshold-value">50%</span>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="autoFlag" name="autoFlag" checked>
+                            Auto-flag high-risk transactions
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="sendAlerts" name="sendAlerts" checked>
+                            Send email alerts for critical transactions
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Model Settings</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="card settings-section">
+            <div class="card-header">
+                <h2><i class="fas fa-bell"></i> Notification Settings</h2>
+            </div>
+            <div class="card-body">
+                <form id="notificationForm">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="emailNotifications" checked>
+                            Email notifications
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="pushNotifications" checked>
+                            Push notifications
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="dailySummary">
+                            Daily summary report
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="weeklyReport" checked>
+                            Weekly analytics report
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Display Settings -->
+        <div class="card settings-section">
+            <div class="card-header">
+                <h2><i class="fas fa-desktop"></i> Display Settings</h2>
+            </div>
+            <div class="card-body">
+                <form id="displayForm">
+                    <div class="form-group">
+                        <label for="theme">Theme</label>
+                        <select id="theme" name="theme">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="auto">Auto (System)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="language">Language</label>
+                        <select id="language" name="language">
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateFormat">Date Format</label>
+                        <select id="dateFormat" name="dateFormat">
+                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemsPerPage">Items per Page</label>
+                        <select id="itemsPerPage" name="itemsPerPage">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Display Settings</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="card settings-section danger-zone">
+            <div class="card-header">
+                <h2><i class="fas fa-database"></i> Data Management</h2>
+            </div>
+            <div class="card-body">
+                <div class="danger-actions">
+                    <div class="action-item">
+                        <h3>Export All Data</h3>
+                        <p>Download all transactions and analysis data</p>
+                        <button class="btn btn-secondary">Export CSV</button>
+                        <button class="btn btn-secondary">Export Excel</button>
+                    </div>
+                    <div class="action-item">
+                        <h3>Clear Cache</h3>
+                        <p>Clear cached charts and temporary files</p>
+                        <button class="btn btn-warning">Clear Cache</button>
+                    </div>
+                    <div class="action-item">
+                        <h3>Reset Database</h3>
+                        <p>⚠️ This will permanently delete all data</p>
+                        <button class="btn btn-danger">Reset Database</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Risk threshold slider
+const thresholdSlider = document.getElementById('riskThreshold');
+const thresholdValue = document.querySelector('.threshold-value');
+thresholdSlider.addEventListener('input', function() {
+    thresholdValue.textContent = this.value + '%';
+});
+
+// Form submissions
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Profile updated successfully!');
+});
+
+document.getElementById('securityForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Password changed successfully!');
+});
+
+document.getElementById('modelForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Model settings saved!');
+});
+
+document.getElementById('notificationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Notification settings saved!');
+});
+
+document.getElementById('displayForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Display settings saved!');
+});
+</script>
+{% endblock %}
